@@ -152,6 +152,34 @@ for line in io.lines() do
 					end
 				end
 			end
+			-- Optional: {"minions": true} recalculates with each socket group's
+			-- minion skills as the main skill and lists output.Minion for each.
+			if input.minions then
+				result.minions = {}
+				local origGroup = build.mainSocketGroup
+				for i, group in ipairs(build.skillsTab.socketGroupList) do
+					local origSkill = group.mainActiveSkill
+					for j, skill in ipairs(group.displaySkillList or {}) do
+						if skill.minion or (skill.activeEffect and skill.activeEffect.grantedEffect.minionList) then
+							build.mainSocketGroup, group.mainActiveSkill = i, j
+							build.calcsTab:BuildOutput()
+							local o = build.calcsTab.mainOutput.Minion
+							if o then
+								local main = build.calcsTab.mainEnv.player.mainSkill
+								result.minions[#result.minions + 1] = {
+									group = i, skill = j,
+									name = main.activeEffect.grantedEffect.name,
+									minion = main.minion and main.minion.minionData and main.minion.minionData.name,
+									output = plain(o),
+								}
+							end
+						end
+					end
+					group.mainActiveSkill = origSkill
+				end
+				build.mainSocketGroup = origGroup
+				build.calcsTab:BuildOutput()
+			end
 			if input.tabulate then
 				result.tabulate = {}
 				local modDB = build.calcsTab.mainEnv.player.modDB
