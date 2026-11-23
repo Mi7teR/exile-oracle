@@ -126,6 +126,11 @@ for line in io.lines() do
 					}
 					for _, b in ipairs(s.buffList or {}) do
 						e.buffs[#e.buffs + 1] = b.type .. ":" .. b.name
+						if input.buffMods then
+							for _, m in ipairs(b.modList or {}) do
+								e.buffs[#e.buffs + 1] = "  " .. m.name .. " " .. m.type .. " " .. tostring(m.value) .. " " .. tostring(m.source)
+							end
+						end
 					end
 					if s.skillModList and s.skillCfg then
 						e.auraInc = s.skillModList:Sum("INC", s.skillCfg, unpack(names))
