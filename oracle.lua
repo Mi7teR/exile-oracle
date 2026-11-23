@@ -137,6 +137,16 @@ for line in io.lines() do
 					result.skills[#result.skills + 1] = e
 				end
 			end
+			-- Optional: {"itemArmour": true} lists armourData of the player's
+			-- equipped items by slot.
+			if input.itemArmour then
+				result.itemArmour = {}
+				for slot, item in pairs(build.calcsTab.mainEnv.player.itemList) do
+					if item and item.armourData then
+						result.itemArmour[slot] = { name = item.name, data = plain(item.armourData) }
+					end
+				end
+			end
 			if input.tabulate then
 				result.tabulate = {}
 				local modDB = build.calcsTab.mainEnv.player.modDB
