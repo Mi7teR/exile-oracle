@@ -195,7 +195,7 @@ for line in io.lines() do
 								entry.enemyTabulate = {}
 								for _, stat in ipairs(input.minionEnemyTabulate or {}) do
 									local rows = {}
-									for _, row in ipairs(build.calcsTab.mainEnv.enemyDB:Tabulate(nil, nil, stat)) do
+									for _, row in ipairs(build.calcsTab.mainEnv.enemyDB:Tabulate(nil, ms and (ms.weapon1Cfg or ms.skillCfg), stat)) do
 										rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
 									end
 									entry.enemyTabulate[stat] = rows
