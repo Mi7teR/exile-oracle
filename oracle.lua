@@ -154,6 +154,31 @@ for line in io.lines() do
 					end
 				end
 			end
+			-- Optional: {"skillTabulate": ["Stat", ...]} lists the player main
+			-- skill's mods (weapon1Cfg or skillCfg) and the enemy's
+			-- ("Enemy:<Stat>"), plus output.MainHand/OffHand and the skill flags.
+			if input.skillTabulate then
+				local o = build.calcsTab.mainOutput
+				local ms = build.calcsTab.mainEnv.player.mainSkill
+				result.mainSkill = ms.activeEffect.grantedEffect.name
+				result.mainHand = type(o.MainHand) == "table" and plain(o.MainHand) or nil
+				result.offHand = type(o.OffHand) == "table" and plain(o.OffHand) or nil
+				result.skillFlags = plain(ms.skillFlags or {})
+				result.skillData = plain(ms.skillData or {})
+				result.skillTabulate = {}
+				local cfg = ms.weapon1Cfg or ms.skillCfg
+				for _, stat in ipairs(input.skillTabulate) do
+					local db, name = ms.skillModList, stat
+					if stat:sub(1, 6) == "Enemy:" then
+						db, name = build.calcsTab.mainEnv.enemyDB, stat:sub(7)
+					end
+					local rows = {}
+					for _, row in ipairs(db:Tabulate(nil, cfg, name)) do
+						rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
+					end
+					result.skillTabulate[stat] = rows
+				end
+			end
 			-- Optional: {"minions": true} recalculates with each socket group's
 			-- minion skills as the main skill and lists output.Minion for each.
 			if input.minions then
