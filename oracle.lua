@@ -171,7 +171,21 @@ for line in io.lines() do
 									name = main.activeEffect.grantedEffect.name,
 									minion = main.minion and main.minion.minionData and main.minion.minionData.name,
 									output = plain(o),
+									tabulate = {},
 								}
+								-- Optional: {"minionTabulate": ["Stat", ...]} lists the
+								-- minion's mods for those stats.
+								for _, stat in ipairs(input.minionTabulate or {}) do
+									local rows = {}
+									for _, row in ipairs(build.calcsTab.mainEnv.minion.modDB:Tabulate(nil, nil, stat)) do
+										rows[#rows + 1] = {
+											type = row.mod.type,
+											value = type(row.value) == "number" and row.value or tostring(row.value),
+											source = row.mod.source,
+										}
+									end
+									result.minions[#result.minions].tabulate[stat] = rows
+								end
 							end
 						end
 					end
