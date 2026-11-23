@@ -120,6 +120,8 @@ for line in io.lines() do
 						name = s.activeEffect.grantedEffect.name,
 						level = s.activeEffect.level,
 						quality = s.activeEffect.quality,
+						hasGemData = s.activeEffect.gemData ~= nil,
+						srcLevel = s.activeEffect.srcInstance and s.activeEffect.srcInstance.level,
 						disabled = s.skillFlags and s.skillFlags.disable and true or false,
 						buffs = {},
 						rows = {},
