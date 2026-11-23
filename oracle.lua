@@ -165,6 +165,10 @@ for line in io.lines() do
 				result.offHand = type(o.OffHand) == "table" and plain(o.OffHand) or nil
 				result.skillFlags = plain(ms.skillFlags or {})
 				result.skillData = plain(ms.skillData or {})
+				result.effects = {}
+				for _, e in ipairs(ms.effectList or {}) do
+					result.effects[#result.effects + 1] = e.grantedEffect.name .. " L" .. tostring(e.level) .. " Q" .. tostring(e.quality)
+				end
 				result.skillTabulate = {}
 				local cfg = ms.weapon1Cfg or ms.skillCfg
 				for _, stat in ipairs(input.skillTabulate) do
