@@ -2,6 +2,8 @@
 -- Reads JSON lines {"name": "...", "xml": "<PathOfBuilding>..."} on stdin and
 -- prints one line per build: "ORACLE\t" .. JSON {"name", "output", "error"},
 -- where output is build.calcsTab.mainOutput (numbers, booleans, strings).
+-- With "tabulate": ["Stat", ...] in the input, "tabulate" lists the player's
+-- mods for those stats: {type, value, source}.
 -- Run from PoB's src directory (see run.sh); PoB prints its own logs too,
 -- so consumers keep only the ORACLE lines.
 dofile("HeadlessWrapper.lua")
@@ -70,6 +72,23 @@ for line in io.lines() do
 		local ok, err = pcall(function()
 			loadBuildFromXML(input.xml, input.name)
 			result.output = plain(build.calcsTab.mainOutput)
+			-- Optional: {"tabulate": ["Dex", ...]} lists the player's mods per
+			-- stat (ModStore:Tabulate with no cfg) for debugging differences.
+			if input.tabulate then
+				result.tabulate = {}
+				local modDB = build.calcsTab.mainEnv.player.modDB
+				for _, stat in ipairs(input.tabulate) do
+					local rows = {}
+					for _, row in ipairs(modDB:Tabulate(nil, nil, stat)) do
+						rows[#rows + 1] = {
+							type = row.mod.type,
+							value = type(row.value) == "number" and row.value or tostring(row.value),
+							source = row.mod.source,
+						}
+					end
+					result.tabulate[stat] = rows
+				end
+			end
 		end)
 		if not ok then
 			result.error = tostring(err)
