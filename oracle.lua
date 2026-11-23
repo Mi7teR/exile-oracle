@@ -157,7 +157,12 @@ for line in io.lines() do
 				local modDB = build.calcsTab.mainEnv.player.modDB
 				for _, stat in ipairs(input.tabulate) do
 					local rows = {}
-					for _, row in ipairs(modDB:Tabulate(nil, nil, stat)) do
+					-- "Enemy:<Stat>" tabulates the enemy's mods.
+					local db, name = modDB, stat
+					if stat:sub(1, 6) == "Enemy:" then
+						db, name = build.calcsTab.mainEnv.enemy.modDB, stat:sub(7)
+					end
+					for _, row in ipairs(db:Tabulate(nil, nil, name)) do
 						rows[#rows + 1] = {
 							type = row.mod.type,
 							value = type(row.value) == "number" and row.value or tostring(row.value),
