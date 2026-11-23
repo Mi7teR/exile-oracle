@@ -74,6 +74,29 @@ for line in io.lines() do
 			result.output = plain(build.calcsTab.mainOutput)
 			-- Optional: {"tabulate": ["Dex", ...]} lists the player's mods per
 			-- stat (ModStore:Tabulate with no cfg) for debugging differences.
+			-- Optional: {"allocNodes": true} lists the passive node ids PoB
+			-- keeps allocated after loading (it drops unconnected ones).
+			if input.allocNodes then
+				result.allocNodes = {}
+				for id in pairs(build.spec.allocNodes) do
+					result.allocNodes[#result.allocNodes + 1] = id
+				end
+				table.sort(result.allocNodes)
+			end
+			-- Optional: {"nodesInRadius": [[socketId, radiusIndex], ...]} lists
+			-- the tree nodes PoB counts in that jewel radius.
+			if input.nodesInRadius then
+				result.nodesInRadius = {}
+				for _, q in ipairs(input.nodesInRadius) do
+					local ids = {}
+					local socket = build.spec.tree.nodes[q[1]]
+					for id in pairs(socket and socket.nodesInRadius and socket.nodesInRadius[q[2]] or {}) do
+						ids[#ids + 1] = id
+					end
+					table.sort(ids)
+					result.nodesInRadius[#result.nodesInRadius + 1] = ids
+				end
+			end
 			if input.tabulate then
 				result.tabulate = {}
 				local modDB = build.calcsTab.mainEnv.player.modDB
