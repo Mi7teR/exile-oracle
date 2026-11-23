@@ -110,6 +110,33 @@ for line in io.lines() do
 					if type(v) == "number" and v ~= 0 then result.multipliers[k] = v end
 				end
 			end
+			-- Optional: {"skills": true} lists the player's active skills: level,
+			-- quality, buffs, and the aura effect rows of each skill's mod list.
+			if input.skills then
+				result.skills = {}
+				local names = { "AuraEffect", "BuffEffect", "BuffEffectOnSelf", "AuraEffectOnSelf", "AuraBuffEffect", "SkillAuraEffectOnSelf" }
+				for _, s in ipairs(build.calcsTab.mainEnv.player.activeSkillList) do
+					local e = {
+						name = s.activeEffect.grantedEffect.name,
+						level = s.activeEffect.level,
+						quality = s.activeEffect.quality,
+						disabled = s.skillFlags and s.skillFlags.disable and true or false,
+						buffs = {},
+						rows = {},
+					}
+					for _, b in ipairs(s.buffList or {}) do
+						e.buffs[#e.buffs + 1] = b.type .. ":" .. b.name
+					end
+					if s.skillModList and s.skillCfg then
+						e.auraInc = s.skillModList:Sum("INC", s.skillCfg, unpack(names))
+						e.auraMore = s.skillModList:More(s.skillCfg, unpack(names))
+						for _, row in ipairs(s.skillModList:Tabulate("INC", s.skillCfg, unpack(names))) do
+							e.rows[#e.rows + 1] = { name = row.mod.name, value = row.value, source = row.mod.source }
+						end
+					end
+					result.skills[#result.skills + 1] = e
+				end
+			end
 			if input.tabulate then
 				result.tabulate = {}
 				local modDB = build.calcsTab.mainEnv.player.modDB
