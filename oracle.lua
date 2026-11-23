@@ -97,6 +97,19 @@ for line in io.lines() do
 					result.nodesInRadius[#result.nodesInRadius + 1] = ids
 				end
 			end
+			-- Optional: {"conditions": true} lists the player's true conditions
+			-- and non-zero multipliers after the calculation.
+			if input.conditions then
+				local modDB = build.calcsTab.mainEnv.player.modDB
+				result.conditions, result.multipliers = {}, {}
+				for k, v in pairs(modDB.conditions) do
+					if v == true then result.conditions[#result.conditions + 1] = k end
+				end
+				table.sort(result.conditions)
+				for k, v in pairs(modDB.multipliers) do
+					if type(v) == "number" and v ~= 0 then result.multipliers[k] = v end
+				end
+			end
 			if input.tabulate then
 				result.tabulate = {}
 				local modDB = build.calcsTab.mainEnv.player.modDB
