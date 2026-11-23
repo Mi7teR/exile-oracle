@@ -173,6 +173,31 @@ for line in io.lines() do
 									output = plain(o),
 									tabulate = {},
 								}
+								local entry = result.minions[#result.minions]
+								entry.mainHand = type(o.MainHand) == "table" and plain(o.MainHand) or nil
+								local ms = build.calcsTab.mainEnv.minion.mainSkill
+								entry.minionSkill = ms and ms.activeEffect.grantedEffect.name
+								-- Optional: {"minionSkillTabulate": ["Stat", ...]} lists the
+								-- minion main skill's mods (its skill cfg) for those stats.
+								entry.skillTabulate = {}
+								for _, stat in ipairs(input.minionSkillTabulate or {}) do
+									local rows = {}
+									local cfg = ms.weapon1Cfg or ms.skillCfg
+									for _, row in ipairs(ms.skillModList:Tabulate(nil, cfg, stat)) do
+										rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
+									end
+									entry.skillTabulate[stat] = rows
+								end
+								-- Optional: {"minionEnemyTabulate": ["Stat", ...]} lists the
+								-- enemy's mods in this calculation.
+								entry.enemyTabulate = {}
+								for _, stat in ipairs(input.minionEnemyTabulate or {}) do
+									local rows = {}
+									for _, row in ipairs(build.calcsTab.mainEnv.enemyDB:Tabulate(nil, nil, stat)) do
+										rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
+									end
+									entry.enemyTabulate[stat] = rows
+								end
 								-- Optional: {"minionTabulate": ["Stat", ...]} lists the
 								-- minion's mods for those stats.
 								for _, stat in ipairs(input.minionTabulate or {}) do
