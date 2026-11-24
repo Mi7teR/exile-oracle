@@ -9,6 +9,14 @@ resulting JSON fixtures and this repository's version; no Lua lives there.
 ./run.sh v2.68.1 < builds.jsonl > results.jsonl
 ```
 
+PoB keeps some state between builds loaded in one process, so one build can
+change another's results. For reference fixtures use `run-each.sh`, which
+starts a fresh PoB per build (`JOBS` in parallel, default 4):
+
+```bash
+JOBS=6 ./run-each.sh v2.68.1 < builds.jsonl > results.jsonl
+```
+
 - Input: one JSON object per line, `{"name": "...", "xml": "<PathOfBuilding>..."}`
   (poe-lib's `cmd/goldencorpus input` writes it).
 - Output: `{"name", "output", "error"}` per line; `output` is
