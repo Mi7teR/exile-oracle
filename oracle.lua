@@ -183,6 +183,50 @@ for line in io.lines() do
 					result.skillTabulate[stat] = rows
 				end
 			end
+			-- Optional: {"breakdown": ["Physical", ...]} returns the CALCS mode
+			-- breakdown of the player's main skill per hand (MainHand/OffHand)
+			-- and at the top level, as nested tables of strings and numbers.
+			if input.breakdown then
+				local function deep(v, depth)
+					local t = type(v)
+					if t == "number" then
+						return (v == v and v ~= math.huge and v ~= -math.huge) and v or tostring(v)
+					elseif t == "string" or t == "boolean" then
+						return v
+					elseif t == "table" and depth < 6 then
+						local o = {}
+						for k, x in pairs(v) do
+							o[tostring(k)] = deep(x, depth + 1)
+						end
+						return o
+					end
+					return nil
+				end
+				-- Point the Calcs tab at the main skill (it keeps its own choice).
+				local g = build.skillsTab.socketGroupList[build.mainSocketGroup]
+				build.calcsTab.input.skill_number = build.mainSocketGroup
+				if g then
+					g.mainActiveSkillCalcs = g.mainActiveSkill
+					for _, gem in ipairs(g.gemList or {}) do
+						for _, f in ipairs({ "skillPart", "skillStageCount", "skillMineCount", "skillMinion", "skillMinionItemSet", "skillMinionSkill" }) do
+							gem[f .. "Calcs"] = gem[f]
+						end
+					end
+				end
+				build.calcsTab:BuildOutput()
+				local bd = build.calcsTab.calcsEnv.player.breakdown or {}
+				result.breakdown = {}
+				for _, where in ipairs({ "MainHand", "OffHand", "" }) do
+					local src = where == "" and bd or bd[where]
+					if src then
+						local o = {}
+						for _, name in ipairs(input.breakdown) do
+							o[name] = deep(src[name], 0)
+						end
+						result.breakdown[where == "" and "Top" or where] = o
+					end
+				end
+			end
 			-- Optional: {"minions": true} recalculates with each socket group's
 			-- minion skills as the main skill and lists output.Minion for each.
 			if input.minions then
