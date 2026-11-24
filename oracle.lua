@@ -170,7 +170,7 @@ for line in io.lines() do
 					result.effects[#result.effects + 1] = e.grantedEffect.name .. " L" .. tostring(e.level) .. " Q" .. tostring(e.quality)
 				end
 				result.skillTabulate = {}
-				local cfg = ms.weapon1Cfg or ms.skillCfg
+				local cfg = (input.tabulateCfg and ms[input.tabulateCfg]) or ms.weapon1Cfg or ms.skillCfg
 				for _, stat in ipairs(input.skillTabulate) do
 					local db, name = ms.skillModList, stat
 					if stat:sub(1, 6) == "Enemy:" then
@@ -257,7 +257,7 @@ for line in io.lines() do
 								entry.skillTabulate = {}
 								for _, stat in ipairs(input.minionSkillTabulate or {}) do
 									local rows = {}
-									local cfg = ms.weapon1Cfg or ms.skillCfg
+									local cfg = (input.tabulateCfg and ms[input.tabulateCfg]) or ms.weapon1Cfg or ms.skillCfg
 									for _, row in ipairs(ms.skillModList:Tabulate(nil, cfg, stat)) do
 										rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
 									end
