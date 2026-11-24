@@ -70,7 +70,31 @@ for line in io.lines() do
 		local input = dkjson.decode(line)
 		local result = { name = input and input.name }
 		local ok, err = pcall(function()
+			-- Optional: {"mirageTabulate": ["Damage", ...]} tabulates the skill
+			-- mods of the last mirage copy (calcs.copyActiveSkill) PoB made.
+			local mirageSkill
+			local calcsBase = require("Modules.CalcBase")
+			local copyActiveSkill = calcsBase.copyActiveSkill
+			if input.mirageTabulate then
+				calcsBase.copyActiveSkill = function(...)
+					local newSkill, newEnv = copyActiveSkill(...)
+					mirageSkill = newSkill
+					return newSkill, newEnv
+				end
+			end
 			loadBuildFromXML(input.xml, input.name)
+			calcsBase.copyActiveSkill = copyActiveSkill
+			if input.mirageTabulate and mirageSkill then
+				result.mirageTabulate = {}
+				local cfg = mirageSkill.weapon1Cfg or mirageSkill.skillCfg
+				for _, stat in ipairs(input.mirageTabulate) do
+					local rows = {}
+					for _, row in ipairs(mirageSkill.skillModList:Tabulate(nil, cfg, stat)) do
+						rows[#rows + 1] = { type = row.mod.type, value = type(row.value) == "number" and row.value or tostring(row.value), source = row.mod.source }
+					end
+					result.mirageTabulate[stat] = rows
+				end
+			end
 			result.output = plain(build.calcsTab.mainOutput)
 			-- Optional: {"tabulate": ["Dex", ...]} lists the player's mods per
 			-- stat (ModStore:Tabulate with no cfg) for debugging differences.
@@ -165,6 +189,10 @@ for line in io.lines() do
 				result.offHand = type(o.OffHand) == "table" and plain(o.OffHand) or nil
 				result.skillFlags = plain(ms.skillFlags or {})
 				result.skillData = plain(ms.skillData or {})
+				-- The mirage's own output (calcs.mirages), when the main skill has one.
+				if ms.mirage and ms.mirage.output then
+					result.mirage = { count = ms.mirage.count, output = plain(ms.mirage.output) }
+				end
 				result.effects = {}
 				for _, e in ipairs(ms.effectList or {}) do
 					result.effects[#result.effects + 1] = e.grantedEffect.name .. " L" .. tostring(e.level) .. " Q" .. tostring(e.quality)
