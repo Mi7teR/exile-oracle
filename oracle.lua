@@ -96,6 +96,14 @@ for line in io.lines() do
 				end
 			end
 			result.output = plain(build.calcsTab.mainOutput)
+			-- Optional: {"skillDPS": true} lists output.SkillDPS, the Full DPS
+			-- entries of calcs.calcFullDPS: {name, dps, count, trigger, skillPart, source}.
+			if input.skillDPS then
+				result.skillDPS = {}
+				for _, e in ipairs(build.calcsTab.mainOutput.SkillDPS or {}) do
+					result.skillDPS[#result.skillDPS + 1] = { name = e.name, dps = e.dps, count = e.count, trigger = e.trigger, skillPart = e.skillPart, source = e.source }
+				end
+			end
 			-- Optional: {"tabulate": ["Dex", ...]} lists the player's mods per
 			-- stat (ModStore:Tabulate with no cfg) for debugging differences.
 			-- Optional: {"allocNodes": true} lists the passive node ids PoB
