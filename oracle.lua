@@ -121,6 +121,23 @@ for line in io.lines() do
 					result.nodesInRadius[#result.nodesInRadius + 1] = ids
 				end
 			end
+			-- Optional: {"nodeStats": [nodeId, ...]} lists each node's stat
+			-- lines (sd) after PoB's jewel and conquest processing.
+			if input.nodeStats then
+				result.nodeStats = {}
+				for _, id in ipairs(input.nodeStats) do
+					local node = build.spec.nodes[id]
+					local sd = {}
+					for _, line in ipairs(node and node.sd or {}) do
+						sd[#sd + 1] = line
+					end
+					local mods = {}
+					for _, m in ipairs(node and node.modList or {}) do
+						mods[#mods + 1] = m.name .. " " .. m.type .. " " .. tostring(m.value)
+					end
+					result.nodeStats[tostring(id)] = { name = node and node.dn, sd = sd, mods = mods, conqueredBy = node and node.conqueredBy and node.conqueredBy.conqueror and node.conqueredBy.conqueror.type }
+				end
+			end
 			-- Optional: {"conditions": true} lists the player's true conditions
 			-- and non-zero multipliers after the calculation.
 			if input.conditions then
