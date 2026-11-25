@@ -297,6 +297,9 @@ for line in io.lines() do
 								entry.mainHand = type(o.MainHand) == "table" and plain(o.MainHand) or nil
 								local ms = build.calcsTab.mainEnv.minion.mainSkill
 								entry.minionSkill = ms and ms.activeEffect.grantedEffect.name
+								entry.minionSkillFlags = ms and ms.skillCfg.flags
+								entry.minionWeapon1Flags = ms and ms.weapon1Cfg and ms.weapon1Cfg.flags
+								entry.minionWeaponType = build.calcsTab.mainEnv.minion.weaponData1 and build.calcsTab.mainEnv.minion.weaponData1.type
 								-- Optional: {"minionSkillTabulate": ["Stat", ...]} lists the
 								-- minion main skill's mods (its skill cfg) for those stats.
 								entry.skillTabulate = {}
@@ -323,10 +326,17 @@ for line in io.lines() do
 								for _, stat in ipairs(input.minionTabulate or {}) do
 									local rows = {}
 									for _, row in ipairs(build.calcsTab.mainEnv.minion.modDB:Tabulate(nil, nil, stat)) do
+										local tags = {}
+										for _, tg in ipairs(row.mod) do
+											local parts = {}
+											for k, v in pairs(tg) do parts[#parts + 1] = tostring(k) .. "=" .. tostring(v) end
+											tags[#tags + 1] = table.concat(parts, ",")
+										end
 										rows[#rows + 1] = {
 											type = row.mod.type,
 											value = type(row.value) == "number" and row.value or tostring(row.value),
 											source = row.mod.source,
+											tags = tags,
 										}
 									end
 									result.minions[#result.minions].tabulate[stat] = rows
