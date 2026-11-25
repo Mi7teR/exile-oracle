@@ -133,7 +133,7 @@ for line in io.lines() do
 					end
 					local mods = {}
 					for _, m in ipairs(node and node.modList or {}) do
-						mods[#mods + 1] = m.name .. " " .. m.type .. " " .. tostring(m.value)
+						mods[#mods + 1] = m.name .. " " .. m.type .. " " .. tostring(m.value) .. " flags=" .. string.format("0x%x", m.flags or 0)
 					end
 					result.nodeStats[tostring(id)] = { name = node and node.dn, sd = sd, mods = mods, conqueredBy = node and node.conqueredBy and node.conqueredBy.conqueror and node.conqueredBy.conqueror.type }
 				end
@@ -205,6 +205,9 @@ for line in io.lines() do
 				result.mainHand = type(o.MainHand) == "table" and plain(o.MainHand) or nil
 				result.offHand = type(o.OffHand) == "table" and plain(o.OffHand) or nil
 				result.skillFlags = plain(ms.skillFlags or {})
+				result.weapon1CfgFlags = ms.weapon1Cfg and ms.weapon1Cfg.flags
+				local wd = build.calcsTab.mainEnv.player.weaponData1 or {}
+				result.weaponData1 = { type = wd.type, countsAsAll1H = wd.countsAsAll1H, asThoughUsing = wd.asThoughUsing and plain(wd.asThoughUsing) }
 				result.skillData = plain(ms.skillData or {})
 				-- The mirage's own output (calcs.mirages), when the main skill has one.
 				if ms.mirage and ms.mirage.output then
