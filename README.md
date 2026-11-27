@@ -1,8 +1,8 @@
-# poe-pob-oracle
+# exile-oracle
 
 Headless [Path of Building Community](https://github.com/PathOfBuildingCommunity/PathOfBuilding)
-as a reference calculator for [poe-lib](https://github.com/Mi7teR/poe-lib)'s
-engine: builds go in, the stats PoB computes come out. poe-lib stores only the
+as a reference calculator for [exile-calc](https://github.com/Mi7teR/exile-calc)'s
+engine: builds go in, the stats PoB computes come out. exile-calc stores only the
 resulting JSON fixtures and this repository's version; no Lua lives there.
 
 ```bash
@@ -18,7 +18,7 @@ JOBS=6 ./run-each.sh v2.68.1 < builds.jsonl > results.jsonl
 ```
 
 - Input: one JSON object per line, `{"name": "...", "xml": "<PathOfBuilding>..."}`
-  (poe-lib's `cmd/goldencorpus input` writes it).
+  (exile-calc's `cmd/goldencorpus input` writes it).
 - Output: `{"name", "output", "error"}` per line; `output` is
   `build.calcsTab.mainOutput` (numbers, booleans, strings).
 

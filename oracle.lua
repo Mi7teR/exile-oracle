@@ -1,4 +1,4 @@
--- Headless Path of Building as a reference calculator for poe-lib.
+-- Headless Path of Building as a reference calculator for exile-calc.
 -- Reads JSON lines {"name": "...", "xml": "<PathOfBuilding>..."} on stdin and
 -- prints one line per build: "ORACLE\t" .. JSON {"name", "output", "error"},
 -- where output is build.calcsTab.mainOutput (numbers, booleans, strings).
